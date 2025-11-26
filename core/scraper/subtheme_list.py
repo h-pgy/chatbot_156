@@ -39,7 +39,7 @@ class SubthemesByThemeParser:
         nome_subtema = subtheme_div.text.strip()
 
         return {'id_subtema' : id_subtema,
-                'nome_subtema' : nome_subtema}
+                'nome_subtema' : nome_subtema.replace('keyboard_arrow_right', '').strip()}
     
     def parse_all_subthemes_by_theme(self, theme_name:str, theme_id:str)->list[dict[str, str]]:
 
