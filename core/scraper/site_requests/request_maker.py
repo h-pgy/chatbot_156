@@ -40,3 +40,11 @@ class RequestMaker:
         print(f'Getting html for {url}')
         with self.session.get(url) as r:
             return r.text
+        
+    def get_json_request(self, endpoint:str, query_params:dict|None=None)->dict:
+
+
+        url = self.solve_url(endpoint, query_params)
+        print(f'Getting json for {url}')
+        with self.session.get(url, headers={'Accept' : 'application/json+javascript'}) as r:
+            return r.json()

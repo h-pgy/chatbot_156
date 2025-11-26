@@ -43,7 +43,7 @@ class ServiceThemeListParser:
             raise RuntimeError(f'Href not found on link: {link}')
         name = link.text.strip()
 
-        return {'name' : name, 'href' : str(href)}
+        return {'theme_name' : name, 'href' : str(href)}
     
     def parse_all_service_list_itens(self, service_li_list:list[Tag])->list[dict[str, str]]:
 
@@ -58,7 +58,7 @@ class ServiceThemeListParser:
 
         df = pd.DataFrame(parsed_list_itens)
 
-        df['service_id'] = df['href'].str.extract(r"id=([^&]+)")
+        df['theme_id'] = df['href'].str.extract(r"id=([^&]+)")
 
         return df
     

@@ -16,12 +16,20 @@ class Site156:
 
         return self.request_maker.get_html_request(endpoint=endpoint)
     
-    def service_list_page_by_tema(self, tema_nome:str)->str:
+    def subtheme_list_page_by_theme(self, theme_name:str)->str:
 
         endpoint = 'servicos-online'
-        query_params ={'id':tema_nome}
+        query_params ={'id':theme_name}
 
         return self.request_maker.get_html_request(endpoint=endpoint, query_params=query_params)
+    
+    def service_data_by_subtheme(self, subtheme_id:str)->dict:
+
+        endpoint=f"cube/secoes/{subtheme_id}/itens-secao"
+        query_params = {'discardInformacoes' : 'true'}
+
+        return self.request_maker.get_json_request(endpoint, query_params)
+
     
     def service_detail_page(self, service_id=int)->str:
 
@@ -29,3 +37,5 @@ class Site156:
         query_params={'servico':service_id} 
 
         return self.request_maker.get_html_request(endpoint=endpoint, query_params=query_params)
+    
+    
