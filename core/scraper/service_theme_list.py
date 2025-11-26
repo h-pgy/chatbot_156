@@ -13,7 +13,7 @@ class ServiceThemeListParser:
 
         page_html = self.site.service_list_page()
 
-        return BeautifulSoup(page_html)
+        return BeautifulSoup(page_html, 'html.parser')
     
     def service_list_section(self, page_soup:BeautifulSoup)->Tag:
 
