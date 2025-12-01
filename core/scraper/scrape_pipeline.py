@@ -8,6 +8,8 @@ import pandas as pd
 
 class ScrapePipeline:
 
+    cache_fname = '156_service_data.csv'
+
     def __init__(self, data_dir:str=DATA_DIR)->None:
 
         self.theme_parser = ServiceThemeListParser()
@@ -18,7 +20,7 @@ class ScrapePipeline:
         self.__solve_data_dir(data_dir)
         self.data_dir = data_dir
 
-        self.data_path = os.path.join(self.data_dir, '156_service_data.csv')
+        self.data_path = os.path.join(self.data_dir, self.cache_fname)
 
     def __solve_data_dir(self, data_dir:str)->None:
 
