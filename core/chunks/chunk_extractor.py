@@ -74,7 +74,7 @@ class ChunkExtractor:
     def __call__(self, data: pd.DataFrame|None=None, save: bool=True) -> dict[str, list]:
 
         if data is None:
-            csv_path = os.path.join(DATA_DIR, 'clean_scraped_services.csv')
+            csv_path = os.path.join(DATA_DIR, '156_service_data.csv')
             data = pd.read_csv(csv_path)
 
         return self.pipeline(data, save)
