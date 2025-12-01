@@ -6,6 +6,8 @@ from config import DATA_DIR
 
 class ChunkExtractor:
 
+    fname = 'chunks_metadata.json'
+
     def __init__(self)->None:
 
         self.chunk_json_parser = ChunkJsonParser()
@@ -58,7 +60,7 @@ class ChunkExtractor:
     
     def save_chunks_json(self, parsed:dict[str, list]) -> None:
 
-        json_path = os.path.join(DATA_DIR, 'chunks_metadata.json')
+        json_path = os.path.join(DATA_DIR, self.fname)
         with open(json_path, 'w') as f:
             json.dump(parsed, f, indent=4, ensure_ascii=False)
     
@@ -72,7 +74,7 @@ class ChunkExtractor:
     def __call__(self, data: pd.DataFrame|None=None, save: bool=True) -> dict[str, list]:
 
         if data is None:
-            csv_path = os.path.join(DATA_DIR, 'clean_scraped_services.csv')
+            csv_path = os.path.join(DATA_DIR, '156_service_data.csv')
             data = pd.read_csv(csv_path)
 
         return self.pipeline(data, save)

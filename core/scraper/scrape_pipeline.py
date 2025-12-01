@@ -8,6 +8,8 @@ import pandas as pd
 
 class ScrapePipeline:
 
+    cache_fname = '156_service_data.csv'
+
     def __init__(self, data_dir:str=DATA_DIR)->None:
 
         self.theme_parser = ServiceThemeListParser()
@@ -18,7 +20,10 @@ class ScrapePipeline:
         self.__solve_data_dir(data_dir)
         self.data_dir = data_dir
 
-        self.data_path = os.path.join(self.data_dir, '156_service_data.csv')
+        self.data_path = os.path.join(self.data_dir, self.cache_fname)
+
+    def drop_duplicates(self, data:pd.DataFrame)->pd.DataFrame:
+        return data.drop_duplicates(subset=['service_id'])
 
     def __solve_data_dir(self, data_dir:str)->None:
 
@@ -47,5 +52,6 @@ class ScrapePipeline:
             subtheme_df = self.subtheme_parser(theme_df)
             service_links_df = self.service_links_parser(subtheme_df)
             service_links_df['description'] = service_links_df['service_id'].apply(self.service_detail_parser)
+            service_links_df = self.drop_duplicates(service_links_df)
             self.save_service_data(service_links_df)
             return service_links_df

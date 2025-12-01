@@ -1,0 +1,17 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Instalar dependências
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar código + config
+COPY core/ core/
+COPY data/ data/
+COPY initial_load_pipeline.py .
+COPY config.py .
+COPY .env .env
+
+# Rodar o pipeline
+CMD ["python", "initial_load_pipeline.py"]
