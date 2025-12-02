@@ -5,10 +5,10 @@ from config import API_URL
 
 BACKEND_URL = f"{API_URL}/ask"
 
-st.set_page_config(page_title="Chatbot 156 - RAG", page_icon="💬", layout="centered")
+st.set_page_config(page_title="Chat-156", page_icon="💬", layout="centered")
 
-st.title("💬 Chatbot 156 - Assistente de Serviços da Prefeitura de SP")
-st.write("Este chatbot usa RAG + Qwen + embeddings do 156 para responder dúvidas.")
+st.title("💬 Chat-156 - Assistente de Serviços da Prefeitura de SP")
+st.write("Este chatbot utiliza Inteligência Artificial para responder dúvidas sobre os serviços disponíveis no Portal 156 da Prefeitura de São Paulo.")
 
 
 # ---------------------------
@@ -35,7 +35,7 @@ with st.form("form"):
     submitted = st.form_submit_button("Enviar")
 
 if submitted and question.strip():
-    st.session_state.history.append({"role": "user", "content": question})
+    resp_obj = {"question" : question}
 
     st.write("### Resposta:")
     placeholder = st.empty()
@@ -45,9 +45,11 @@ if submitted and question.strip():
     for token in stream_from_backend(question):
         full_answer += token
         placeholder.write(full_answer)
+    
+    resp_obj["answer"] = full_answer
 
     # Armazena no histórico
-    st.session_state.history.append({"role": "assistant", "content": full_answer})
+    st.session_state.history.append(resp_obj)
 
 
 # ---------------------------
@@ -55,10 +57,15 @@ if submitted and question.strip():
 # ---------------------------
 if st.session_state.history:
     st.write("---")
-    st.write("### Histórico")
+    st.write("### Histórico de conversas")
 
-    for msg in st.session_state.history:
-        if msg["role"] == "user":
-            st.markdown(f"**Usuário:** {msg['content']}")
-        else:
-            st.markdown(f"**Chatbot:** {msg['content']}")
+    with st.container():
+        st.markdown('### Histórico de conversas')
+
+        for msg in st.session_state.history:
+            with st.expander(msg['question'][:100]+'...', expanded=False):
+                st.markdown(f"**Você:** {msg['question']}")
+                st.markdown(f"**Chat-156:** {msg['answer']}")
+
+
+
