@@ -23,11 +23,12 @@ services:
       - ollama_models:/root/.ollama
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/11434' || exit 1
       interval: 5s
       timeout: 3s
       retries: 20
-      start_period: 10s
     gpus: all
 
   api:
@@ -35,6 +36,14 @@ services:
     container_name: api
     depends_on:
       - ollama
+      - qdrant
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/8000' || exit 1
+      interval: 5s
+      timeout: 2s
+      retries: 20
     ports:
       - "8000:8000"
     env_file:
@@ -51,7 +60,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
 
   ingest:

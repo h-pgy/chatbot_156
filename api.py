@@ -13,6 +13,9 @@ retrieve_docs = Retriever(top_k=5)
 def get_resp_generator():
     return RespGenerator(llm_service, prompt_builder)
 
+@app.get("/healthz")
+async def healthcheck():
+    return {"status": "ok"}
 
 @app.get("/ask")
 async def ask(query: str, resp_generator: RespGenerator = Depends(get_resp_generator)):
