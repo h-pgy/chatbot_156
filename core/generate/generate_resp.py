@@ -1,6 +1,6 @@
 from .llm_service import LLMService
 from .promp_builder import PromptBuilder
-
+from typing import Generator
 
 class RespGenerator:
 
@@ -8,12 +8,10 @@ class RespGenerator:
         self.llm_service = llm_service
         self.prompt_builder = prompt_builder
 
-    def generate_resp(self, query:str, retrieved_documents:list) -> str:
+    def generate_resp(self, query:str, retrieved_documents:list) -> Generator[str, None, None]:
 
         prompt: str = self.prompt_builder(query, retrieved_documents)
-        response: str = self.llm_service.generate(prompt)
-
-        return response
+        return self.llm_service.generate(prompt)
     
-    def __call__(self, query:str, retrieved_documents:list) -> str:
+    def __call__(self, query:str, retrieved_documents:list) -> Generator[str, None, None]:
         return self.generate_resp(query, retrieved_documents)

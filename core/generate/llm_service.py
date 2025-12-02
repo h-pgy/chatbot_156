@@ -1,5 +1,7 @@
 from config import OLLAMA_URL, GEN_MODEL_NAME
 from .load_model import GenModelLoader
+from typing import Generator
+import json
 import requests
 
 class LLMService:
@@ -11,18 +13,25 @@ class LLMService:
         self.load_model = GenModelLoader(self.model_name)
         self.load_model()
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str) -> Generator[str, None, None]:
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "stream" : False
+            "stream" : True
         }
 
-        response = requests.post(
-            f"{self.url}/api/generate",
-            json=payload,
-            timeout=120
-        )
-        response.raise_for_status()
+        with requests.post(f"{self.url}/api/generate", json=payload, stream=True) as response:
+            
+            response.raise_for_status()
 
-        return response.json().get("response", "").strip()
+            for line in response.iter_lines():
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line.decode("utf-8"))
+                except:
+                    continue
+
+                token = data.get("response", "")
+                if token:
+                    yield token

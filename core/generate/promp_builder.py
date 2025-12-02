@@ -14,7 +14,7 @@ class PromptBuilder:
             - Você é especializado em responder perguntas sobre serviços públicos municipais da cidade de São Paulo.
             - Você usa um tom formal em suas respostas, mas sempre tenta usar linguagem simples e acessível.
             
-            Use APENAS as informações do CONTEXTO abaixo para responder.
+            Use APENAS as informações de sua PERSONA e do CONTEXTO abaixo para responder.
 
             REGRAS:
                 Regras para elaborar as respostas:
