@@ -4,8 +4,9 @@ from config import GEN_MODEL_NAME, OLLAMA_URL
 
 class GenModelLoader:
 
-    def __init__(self, use_api:bool=True):
-        self.model_name = GEN_MODEL_NAME
+    def __init__(self, model_name:str=GEN_MODEL_NAME, use_api:bool=True) -> None:
+
+        self.model_name = model_name
         self.ollama_url = OLLAMA_URL
         self.use_api = use_api
         if not self.is_ollama_ready():

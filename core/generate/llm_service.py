@@ -8,11 +8,13 @@ class LLMService:
         self.model_name = model_name
         self.url = OLLAMA_URL
 
-    def generate(self, prompt: str, temperature: float = 0.2) -> str:
+        self.load_model = GenModelLoader(self.model_name)
+        self.load_model()
+
+    def generate(self, prompt: str) -> str:
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "options": {"temperature": temperature},
             "stream" : False
         }
 
