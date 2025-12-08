@@ -26,6 +26,63 @@ def stream_from_backend(question:str) -> Generator[str, Any, None]:
 # ---------------------------
 # UI
 # ---------------------------
+
+
+# ---------------------------
+# SIDEBAR
+# ---------------------------
+with st.sidebar:
+    st.title("ℹ️ Sobre o projeto")
+
+    # ---------------------------
+    # Seção 1 — Como foi feito
+    # ---------------------------
+    with st.container():
+        st.subheader("Como foi feito")
+        st.markdown(
+            """
+            Este chatbot utiliza uma arquitetura **RAG** e modelos **open source** para responder dúvidas sobre o Portal 156.
+            """
+        )
+        with st.expander("Clique para ver mais detalhes"):
+            st.markdown(
+                """
+                O sistema foi desenvolvido utilizando uma arquitetura **RAG (Retrieval-Augmented Generation)**.  
+                Nesse modelo, antes de gerar uma resposta, a IA busca informações relevantes em uma base de documentos — no caso, os textos da Carta de Serviços do Portal 156, que foram scrapeados do site e estruturados em um banco de dados vetorizado (QDRANT). Isso garante respostas mais precisas, atuais e alinhadas ao conteúdo oficial, reduzindo alucinações comuns em modelos puramente generativos.
+
+                Para o processamento de dados, o projeto utiliza o **modelo open source Qwen**, responsável pela geração das respostas, em conjunto com o **modelo SBERT** para criação de *embeddings*, que permitem encontrar trechos relevantes nos documentos. Essa combinação garante rapidez na recuperação das informações e qualidade na geração do texto final.
+                """
+            )
+
+    st.write("---")
+
+    # ---------------------------
+    # Seção 2 — Código fonte
+    # ---------------------------
+    with st.container():
+        st.subheader("Código no GitHub")
+        st.markdown(
+            """
+🐙 [**Repositório no GitHub**](https://github.com/h-pgy/chatbot_156)
+            """
+        )
+
+    st.write("---")
+
+    # ---------------------------
+    # Seção 3 — LinkedIn
+    # ---------------------------
+    with st.container():
+        st.subheader("Contato profissional")
+        st.markdown("**Desenvolvido por Henrique Pougy**")
+        st.markdown(
+            """
+🔗 [**Meu LinkedIn**](https://www.linkedin.com/in/henrique-pougy/)
+            """
+        )
+
+
+
 if "history" not in st.session_state:
     st.session_state.history = []
 
