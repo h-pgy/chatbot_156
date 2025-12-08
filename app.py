@@ -5,10 +5,10 @@ from config import API_URL
 
 BACKEND_URL = f"{API_URL}/ask"
 
-st.set_page_config(page_title="Chatbot 156 - RAG", page_icon="💬", layout="centered")
+st.set_page_config(page_title="Chat-156", page_icon="💬", layout="centered")
 
-st.title("💬 Chatbot 156 - Assistente de Serviços da Prefeitura de SP")
-st.write("Este chatbot usa RAG + Qwen + embeddings do 156 para responder dúvidas.")
+st.title("💬 Chat-156 - Assistente de Serviços da Prefeitura de SP")
+st.write("Este chatbot utiliza Inteligência Artificial para responder dúvidas sobre os serviços disponíveis no Portal 156 da Prefeitura de São Paulo.")
 
 
 # ---------------------------
@@ -26,6 +26,63 @@ def stream_from_backend(question:str) -> Generator[str, Any, None]:
 # ---------------------------
 # UI
 # ---------------------------
+
+
+# ---------------------------
+# SIDEBAR
+# ---------------------------
+with st.sidebar:
+    st.title("ℹ️ Sobre o projeto")
+
+    # ---------------------------
+    # Seção 1 — Como foi feito
+    # ---------------------------
+    with st.container():
+        st.subheader("Como foi feito")
+        st.markdown(
+            """
+            Este chatbot utiliza uma arquitetura **RAG** e modelos **open source** para responder dúvidas sobre o Portal 156.
+            """
+        )
+        with st.expander("Clique para ver mais detalhes"):
+            st.markdown(
+                """
+                O sistema foi desenvolvido utilizando uma arquitetura **RAG (Retrieval-Augmented Generation)**.  
+                Nesse modelo, antes de gerar uma resposta, a IA busca informações relevantes em uma base de documentos — no caso, os textos da Carta de Serviços do Portal 156, que foram scrapeados do site e estruturados em um banco de dados vetorizado (QDRANT). Isso garante respostas mais precisas, atuais e alinhadas ao conteúdo oficial, reduzindo alucinações comuns em modelos puramente generativos.
+
+                Para o processamento de dados, o projeto utiliza o **modelo open source Qwen**, responsável pela geração das respostas, em conjunto com o **modelo SBERT** para criação de *embeddings*, que permitem encontrar trechos relevantes nos documentos. Essa combinação garante rapidez na recuperação das informações e qualidade na geração do texto final.
+                """
+            )
+
+    st.write("---")
+
+    # ---------------------------
+    # Seção 2 — Código fonte
+    # ---------------------------
+    with st.container():
+        st.subheader("Código no GitHub")
+        st.markdown(
+            """
+🐙 [**Repositório no GitHub**](https://github.com/h-pgy/chatbot_156)
+            """
+        )
+
+    st.write("---")
+
+    # ---------------------------
+    # Seção 3 — LinkedIn
+    # ---------------------------
+    with st.container():
+        st.subheader("Contato profissional")
+        st.markdown("**Desenvolvido por Henrique Pougy**")
+        st.markdown(
+            """
+🔗 [**Meu LinkedIn**](https://www.linkedin.com/in/henrique-pougy/)
+            """
+        )
+
+
+
 if "history" not in st.session_state:
     st.session_state.history = []
 
@@ -35,19 +92,19 @@ with st.form("form"):
     submitted = st.form_submit_button("Enviar")
 
 if submitted and question.strip():
-    st.session_state.history.append({"role": "user", "content": question})
-
-    st.write("### Resposta:")
+    resp_obj = {"question" : question}
     placeholder = st.empty()
-    full_answer = ""
+    st.write("### Resposta:")
+    answer_placeholder = st.empty()
 
-    # Consome token a token do backend
-    for token in stream_from_backend(question):
-        full_answer += token
-        placeholder.write(full_answer)
+    with st.spinner("Aguarde enquanto o Chat-156 elabora a resposta..."):
+        resp_gen = stream_from_backend(question)
+        full_answer = answer_placeholder.write_stream(resp_gen, cursor='...')
+
+    resp_obj["answer"] = full_answer
 
     # Armazena no histórico
-    st.session_state.history.append({"role": "assistant", "content": full_answer})
+    st.session_state.history.append(resp_obj)
 
 
 # ---------------------------
@@ -55,10 +112,19 @@ if submitted and question.strip():
 # ---------------------------
 if st.session_state.history:
     st.write("---")
-    st.write("### Histórico")
+    st.write("### Histórico de conversas")
 
-    for msg in st.session_state.history:
-        if msg["role"] == "user":
-            st.markdown(f"**Usuário:** {msg['content']}")
-        else:
-            st.markdown(f"**Chatbot:** {msg['content']}")
+    with st.container():
+        st.markdown('### Histórico de conversas')
+
+        for msg in st.session_state.history:
+            with st.expander(msg['question'][:100]+'...', expanded=False):
+                st.markdown(f"**Você:** {msg['question']}")
+                st.markdown(f"**Chat-156:** {msg['answer']}")
+    # Botão de limpar histórico
+    if st.button("🗑️ Limpar histórico"):
+        st.session_state.history = []
+        st.rerun()
+
+
+

@@ -1,0 +1,129 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsresolver.acme.email=hpougy@gmail.com"
+      - "--certificatesresolvers.letsresolver.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik_letsencrypt:/letsencrypt"
+    networks:
+      - web
+    depends_on:
+      - traefik-init
+
+  traefik-init:
+    image: alpine
+    command: sh -c "mkdir -p /letsencrypt && touch /letsencrypt/acme.json && chmod 600 /letsencrypt/acme.json"
+    volumes:
+      - traefik_letsencrypt:/letsencrypt
+
+
+  qdrant:
+    image: qdrant/qdrant
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - backend
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/11434' || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    gpus: all
+    networks:
+      - backend
+
+  api:
+    build: .
+    container_name: api
+    depends_on:
+      - ollama
+      - qdrant
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - bash -c ':> /dev/tcp/127.0.0.1/8000' || exit 1
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    env_file:
+      - .env
+    gpus: all
+    networks:
+      - backend
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: streamlit
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - web
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`chat156.sampa.br`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=8501"
+    expose:
+      - "8501"
+
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile.ingest
+    depends_on:
+      - qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    gpus: all
+    profiles: ["ingest"]
+    networks:
+      - backend
+
+networks:
+  web:
+  backend:
+
+volumes:
+  qdrant_data:
+  ollama_models:
+  traefik_letsencrypt:
+    driver: local
