@@ -36,16 +36,14 @@ with st.form("form"):
 
 if submitted and question.strip():
     resp_obj = {"question" : question}
-
-    st.write("### Resposta:")
     placeholder = st.empty()
-    full_answer = ""
+    st.write("### Resposta:")
+    answer_placeholder = st.empty()
 
-    # Consome token a token do backend
-    for token in stream_from_backend(question):
-        full_answer += token
-        placeholder.write(full_answer)
-    
+    with st.spinner("Aguarde enquanto o Chat-156 elabora a resposta..."):
+        resp_gen = stream_from_backend(question)
+        full_answer = answer_placeholder.write_stream(resp_gen, cursor='...')
+
     resp_obj["answer"] = full_answer
 
     # Armazena no histórico
@@ -66,6 +64,10 @@ if st.session_state.history:
             with st.expander(msg['question'][:100]+'...', expanded=False):
                 st.markdown(f"**Você:** {msg['question']}")
                 st.markdown(f"**Chat-156:** {msg['answer']}")
+    # Botão de limpar histórico
+    if st.button("🗑️ Limpar histórico"):
+        st.session_state.history = []
+        st.rerun()
 
 
 
